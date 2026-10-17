@@ -1,0 +1,33 @@
+# Dependency directories
+/node_modules
+
+# Compiled output
+/dist
+/out
+
+# Environment variables
+.env
+
+# IDE files
+/.vscode
+/.idea
+
+# Logs
+/logs
+
+# Testing frameworks
+/jest
+
+# Build tools
+/webpack
+/rollup
+
+# Miscellaneous
+.DS_Store
+
+# 用户配置
+/config/config.yaml
+
+# 通知
+notify.py
+sendNotify.js

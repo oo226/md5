@@ -1,0 +1,10 @@
+Password
+.idea
+*.json
+!env.json
+__pycache__
+.env
+*.har
+config/
+node_modules/
+debug/

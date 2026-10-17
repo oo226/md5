@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QinglongScripts - 青龙面板自动任务脚本</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --accent: #06b6d4;
+        }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+            min-height: 100vh;
+        }
+        .gradient-text {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(99, 102, 241, 0.2);
+        }
+        .glow {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+        .script-card {
+            backdrop-filter: blur(10px);
+            background: rgba(30, 41, 59, 0.8);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        .badge {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        .float-animation {
+            animation: float 3s ease-in-out infinite;
+        }
+        .hero-bg {
+            background: radial-gradient(ellipse at top, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Hero Section -->
+    <section class="hero-bg relative overflow-hidden">
+        <div class="absolute inset-0">
+            <div class="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+            <div class="absolute top-40 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse" style="animation-delay: 2s;"></div>
+        </div>
+
+        <div class="relative z-10 container mx-auto px-6 py-20">
+            <div class="text-center">
+                <div class="text-8xl mb-6 float-animation">🐉</div>
+                <h1 class="text-6xl font-bold mb-4">
+                    <span class="gradient-text">QinglongScripts</span>
+                </h1>
+                <p class="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                    青龙面板自动任务订阅仓库，包含多个常用服务的自动签到/任务脚本
+                </p>
+                <div class="flex justify-center gap-4">
+                    <a href="https://github.com/CN-Grace/QinglongScripts" target="_blank"
+                       class="bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 glow">
+                        <i class="fab fa-github mr-2"></i>GitHub
+                    </a>
+                    <a href="#scripts"
+                       class="bg-gray-800 hover:bg-gray-700 text-white px-8 py-3 rounded-lg font-semibold transition-all duration-300 border border-gray-600">
+                        <i class="fas fa-list mr-2"></i>查看脚本
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Start Section -->
+    <section class="py-16 container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center mb-12">
+            <i class="fas fa-rocket mr-3 text-purple-400"></i>快速开始
+        </h2>
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="script-card rounded-xl p-6 card-hover transition-all duration-300">
+                <div class="text-4xl mb-4 text-purple-400">1️⃣</div>
+                <h3 class="text-xl font-semibold mb-3">添加订阅</h3>
+                <p class="text-gray-400">在青龙面板中添加仓库订阅链接</p>
+                <div class="relative mt-3">
+                    <code id="repo-url" class="block p-3 bg-gray-900 rounded text-sm text-cyan-400 break-all pr-12">
+                        https://github.com/CN-Grace/QinglongScripts.git
+                    </code>
+                    <button onclick="copyToClipboard()" class="absolute right-2 top-1/2 -translate-y-1/2 bg-purple-600 hover:bg-purple-700 text-white px-3 py-1 rounded text-xs transition-colors">
+                        <i class="fas fa-copy mr-1"></i>复制
+                    </button>
+                </div>
+            </div>
+            <div class="script-card rounded-xl p-6 card-hover transition-all duration-300">
+                <div class="text-4xl mb-4 text-cyan-400">2️⃣</div>
+                <h3 class="text-xl font-semibold mb-3">配置环境变量</h3>
+                <p class="text-gray-400">在青龙面板的「环境变量」中配置各脚本所需的变量</p>
+                <a href=".env.example" class="inline-block mt-3 text-purple-400 hover:text-purple-300">
+                    查看 .env.example →
+                </a>
+            </div>
+            <div class="script-card rounded-xl p-6 card-hover transition-all duration-300">
+                <div class="text-4xl mb-4 text-green-400">3️⃣</div>
+                <h3 class="text-xl font-semibold mb-3">自动运行</h3>
+                <p class="text-gray-400">青龙面板会根据脚本中的 cron 注释自动创建定时任务</p>
+                <p class="mt-3 text-green-400 text-sm">
+                    <i class="fas fa-check-circle mr-1"></i>订阅后自动执行
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scripts Section -->
+    <section id="scripts" class="py-16 bg-gray-900/50">
+        <div class="container mx-auto px-6">
+            <h2 class="text-3xl font-bold text-center mb-12">
+                <i class="fas fa-code mr-3 text-cyan-400"></i>脚本列表
+            </h2>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Airport -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/airport.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">Airport.py</h3>
+                            <span class="text-xs text-gray-400">机场签到</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/Airport.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行</p>
+                    </div>
+                </div>
+
+                <!-- Aliyun -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/aliyun.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">Aliyun.py</h3>
+                            <span class="text-xs text-gray-400">阿里云盘签到</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/Aliyun.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行</p>
+                    </div>
+                </div>
+
+                <!-- ArknightsBanner -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/skyland.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">ArknightsBanner.py</h3>
+                            <span class="text-xs text-gray-400">明日方舟寻访公告</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 10 * * *</span>
+                            <a href="api/ArknightsBanner.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天10:00执行，监控官网卡池公告并提取抽卡数据</p>
+                    </div>
+                </div>
+
+                <!-- Bilibili -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/bilibili.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">Bilibili.py</h3>
+                            <span class="text-xs text-gray-400">B站每日任务</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/Bilibili.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行（漫画签到/投币/观看/分享）</p>
+                    </div>
+                </div>
+
+                <!-- HelloGithub -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/hellogithub.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">HelloGithub.py</h3>
+                            <span class="text-xs text-gray-400">HelloGithub 月刊</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 8 1 * *</span>
+                            <a href="api/HelloGithub.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每月1号早上8点执行</p>
+                    </div>
+                </div>
+
+                <!-- Nodeseek -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/nodeseek.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">Nodeseek.py</h3>
+                            <span class="text-xs text-gray-400">Nodeseek 签到</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/Nodeseek.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行</p>
+                    </div>
+                </div>
+
+                <!-- SSL -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/ssl.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">SSL.py</h3>
+                            <span class="text-xs text-gray-400">SSL 证书检查</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/SSL.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行，检查证书到期时间</p>
+                    </div>
+                </div>
+
+                <!-- Skyland -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/skyland.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">skyland.py</h3>
+                            <span class="text-xs text-gray-400">森空岛签到</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 8 * * *</span>
+                            <a href="api/Skyland.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天早上8点执行（明日方舟/终末地）</p>
+                    </div>
+                </div>
+
+                <!-- Sync_Password -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/sync_password.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">Sync_Password.py</h3>
+                            <span class="text-xs text-gray-400">Bitwarden 备份</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/Sync_Password.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行，同步密码库</p>
+                    </div>
+                </div>
+
+                <!-- Tieba -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/tieba.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">Tieba.py</h3>
+                            <span class="text-xs text-gray-400">百度贴吧签到</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/Tieba.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行</p>
+                    </div>
+                </div>
+
+                <!-- ValorantStore -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/valorantstore.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">ValorantStore.py</h3>
+                            <span class="text-xs text-gray-400">Valorant 商店</span>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">15 8 * * *</span>
+                            <a href="api/ValorantStore.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天早上8:15执行，查询每日皮肤</p>
+                    </div>
+                </div>
+
+                <!-- YysHuijuanTime -->
+                <div class="script-card rounded-xl p-5 card-hover transition-all duration-300 border-purple-500/50">
+                    <div class="flex items-center mb-3">
+                        <img src="src/scripts/yys.png" class="w-10 h-10 mr-3 rounded-lg">
+                        <div>
+                            <h3 class="font-semibold">YysHuijuanTime.py</h3>
+                            <span class="text-xs text-gray-400">阴阳师绘卷时间获取</span>
+                        </div>
+                        <span class="ml-auto badge text-xs px-2 py-1 rounded">NEW</span>
+                    </div>
+                    <div class="mt-3">
+                        <div class="flex justify-between items-center">
+                            <span class="badge text-xs px-2 py-1 rounded">0 0 * * *</span>
+                            <a href="api/YysHuijuanTime.md" class="text-purple-400 hover:text-purple-300 text-sm">
+                                API 文档 →
+                            </a>
+                        </div>
+                        <p class="text-xs text-gray-500 mt-2">⏰ 每天午夜执行，获取活动时间</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Notifications Section -->
+    <section class="py-16 container mx-auto px-6">
+        <h2 class="text-3xl font-bold text-center mb-12">
+            <i class="fas fa-bell mr-3 text-yellow-400"></i>通知推送
+        </h2>
+        <div class="script-card rounded-xl p-8 max-w-4xl mx-auto">
+            <p class="text-gray-300 mb-6 text-center">
+                所有脚本通过 <code class="bg-gray-800 px-2 py-1 rounded text-cyan-400">notifier.py</code> 统一发送通知，支持以下 <span class="text-purple-400 font-bold">23</span> 种渠道：
+            </p>
+            <div class="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/bark.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Bark</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/console.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">控制台</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/dingtalk.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">钉钉</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/feishu.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">飞书</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/go-cqhttp.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">go-cqhttp</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/gotify.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Gotify</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/igot.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">iGot</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/serverchan.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Server酱</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/pushdeer.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">PushDeer</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/synology.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Synology</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/pushplus.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">PushPlus</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/weplusbot.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">微加机器人</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/qmsg.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Qmsg酱</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/wechat-work.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">企业微信</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/telegram.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Telegram</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/aibotk.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">智能微秘书</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/smtp.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">SMTP 邮件</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/pushme.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">PushMe</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/chronocat.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">CHRONOCAT</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/webhook.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">Webhook</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/ntfy.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">ntfy</div>
+                </div>
+                <div class="text-center p-3 bg-gray-800/50 rounded-lg hover:bg-gray-700/50 transition-colors">
+                    <img src="src/notify/wxpusher.png" class="w-10 h-10 mx-auto mb-2 rounded">
+                    <div class="text-sm">WxPusher</div>
+                </div>
+            </div>
+            <p class="text-center text-gray-400 mt-6 text-sm">
+                共支持 23 种通知渠道，配置对应环境变量即可启用
+            </p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="py-8 border-t border-gray-800">
+        <div class="container mx-auto px-6 text-center">
+            <div class="flex justify-center gap-6 mb-4">
+                <a href="https://github.com/CN-Grace/QinglongScripts" target="_blank"
+                   class="text-gray-400 hover:text-white transition-colors">
+                    <i class="fab fa-github text-2xl"></i>
+                </a>
+            </div>
+            <p class="text-gray-500 text-sm">
+                QinglongScripts © 2026 | MIT License
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth scroll for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Copy to clipboard function
+        function copyToClipboard() {
+            const text = 'https://github.com/CN-Grace/QinglongScripts.git';
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = event.target.closest('button');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check mr-1"></i>已复制';
+                btn.classList.remove('bg-purple-600', 'hover:bg-purple-700');
+                btn.classList.add('bg-green-600');
+                setTimeout(() => {
+                    btn.innerHTML = originalText;
+                    btn.classList.remove('bg-green-600');
+                    btn.classList.add('bg-purple-600', 'hover:bg-purple-700');
+                }, 2000);
+            });
+        }
+    </script>
+</body>
+</html>
